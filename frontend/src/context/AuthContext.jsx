@@ -16,11 +16,17 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await client.post("/api/auth/login", { email, password });
-    const { token, role, name } = res.data;
+    const { token, user: payload } = res.data;
+    const role = res.data.role || payload?.role;
+    const name = res.data.name || payload?.name;
+
+    if (!token) {
+      throw new Error("Login succeeded but no token was returned");
+    }
 
     localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    localStorage.setItem("name", name);
+    localStorage.setItem("role", role || "");
+    localStorage.setItem("name", name || "");
 
     setUser({ token, role, name });
     return res.data;

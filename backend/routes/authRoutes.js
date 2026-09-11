@@ -5,10 +5,20 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// ✅ Register Route
+const publicUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -17,23 +27,34 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role,
+      role: role === "editor" ? "editor" : "viewer",
     });
 
-    res.json({ message: "✅ User Registered Successfully" });
+    res.status(201).json({
+      message: "User registered successfully",
+      user: publicUser(user),
+    });
   } catch (error) {
-    res.status(500).json({ message: "Registration Failed" });
+    console.error("Register error:", error);
+    res.status(500).json({ message: error.message || "Registration failed" });
   }
 });
 
-// ✅ Login Route
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT_SECRET is not configured on the server" });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -52,13 +73,15 @@ router.post("/login", async (req, res) => {
     );
 
     res.json({
-      message: "✅ Login Successful",
+      message: "Login successful",
       token,
       role: user.role,
       name: user.name,
+      user: publicUser(user),
     });
   } catch (error) {
-    res.status(500).json({ message: "Login Failed" });
+    console.error("Login error:", error);
+    res.status(500).json({ message: error.message || "Login failed" });
   }
 });
 
