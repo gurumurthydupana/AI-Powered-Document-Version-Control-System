@@ -1,10 +1,12 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://doc-version-control-backend.onrender.com";
 
 const client = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,10 +24,10 @@ client.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.code === "ECONNABORTED") {
-      error.message = "Request timed out. Is the backend running on port 5000?";
-    } else if (!error.response) {
       error.message =
-        "Cannot reach the API. Start the backend with npm run dev in the backend folder (http://localhost:5000).";
+        "Request timed out. The API may still be waking up — try again in a few seconds.";
+    } else if (!error.response) {
+      error.message = `Cannot reach the API at ${API_URL}.`;
     }
     return Promise.reject(error);
   }
