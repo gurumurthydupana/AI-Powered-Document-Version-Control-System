@@ -4,7 +4,9 @@ export const connectDB = async () => {
   const uri = process.env.MONGO_URI;
 
   if (!uri) {
-    console.error("❌ MONGO_URI is missing in backend/.env");
+    console.error(
+      "❌ MONGO_URI is missing. Set it in backend/.env locally, or in Render Environment variables in production."
+    );
     process.exit(1);
   }
 
