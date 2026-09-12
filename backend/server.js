@@ -1,17 +1,9 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
-
-// Local: load backend/.env if present. Render injects env vars into
-// process.env with no .env file — missing file must not crash startup.
-try {
-  dotenv.config({ path: ".env" });
-} catch {
-  // ignore — production uses platform environment variables
-}
 
 const app = express();
 
