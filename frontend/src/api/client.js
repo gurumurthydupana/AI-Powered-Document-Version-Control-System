@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://doc-version-control-backend.onrender.com";
+const API_URL = "https://doc-version-control-backend.onrender.com";
 
 const client = axios.create({
   baseURL: API_URL,
